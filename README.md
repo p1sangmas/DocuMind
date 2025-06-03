@@ -2,7 +2,6 @@
 
 ![DocuMind Logo](assets/logo.png)
 ![Version](https://img.shields.io/badge/version-1.0.0-green?style=flat-square)
-![Status](https://img.shields.io/badge/status-production--ready-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 ## ✅ **SYSTEM COMPLETED SUCCESSFULLY!**

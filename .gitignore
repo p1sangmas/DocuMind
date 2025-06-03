@@ -1,6 +1,7 @@
 # Directories to ignore
 data/documents/
 data/vectorstore/
+tests/
 __pycache__/
 */__pycache__/
 *.pyc
@@ -9,6 +10,8 @@ __pycache__/
 *.db
 *.sqlite3
 *.log
+ai_kb_assistant_guide.md
+prepare_for_github.py
 
 # OS-specific files
 .DS_Store
