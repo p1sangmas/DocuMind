@@ -1,0 +1,32 @@
+# Directories to ignore
+data/documents/
+data/vectorstore/
+__pycache__/
+*/__pycache__/
+*.pyc
+
+# Database and log files
+*.db
+*.sqlite3
+*.log
+
+# OS-specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Environment and sensitive data
+.env
+.venv
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local test files and data
+performance_results/
+test_data/
