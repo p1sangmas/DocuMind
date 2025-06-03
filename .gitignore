@@ -12,6 +12,7 @@ __pycache__/
 *.log
 ai_kb_assistant_guide.md
 prepare_for_github.py
+hard_reset.py
 
 # OS-specific files
 .DS_Store
