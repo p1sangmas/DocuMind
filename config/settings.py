@@ -46,5 +46,5 @@ OCR_CONFIG = "--psm 1 --oem 3"  # Tesseract OCR configuration
 OCR_ENABLED = True  # Set to False to disable OCR processing completely
 
 # Auto-loading settings
-AUTO_LOAD_DOCUMENTS = True  # Set to False to disable automatic document loading
+AUTO_LOAD_DOCUMENTS = False  # Set to False to disable automatic document loading
 AUTO_LOAD_SKIP_EXISTING = True  # Skip documents that are already processed

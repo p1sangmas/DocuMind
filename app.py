@@ -70,6 +70,16 @@ class DocuMindApp:
             
         if 'processed_file_info' not in st.session_state:
             st.session_state.processed_file_info = []
+            
+        # UI state variables to prevent reruns
+        if 'show_metrics' not in st.session_state:
+            st.session_state.show_metrics = False
+            
+        if 'feedback_rating' not in st.session_state:
+            st.session_state.feedback_rating = 3
+            
+        if 'feedback_text' not in st.session_state:
+            st.session_state.feedback_text = ""
     
     def run(self):
         """Main application entry point"""
@@ -270,22 +280,45 @@ class DocuMindApp:
             })
             st.session_state.last_response = response
             
-            # Display confidence and sources
+            # Add visual divider
+            st.divider()
+            
+            # Create 3 columns for better layout
             col1, col2 = st.columns([1, 2])
             
             with col1:
+                # Display confidence in its own container with clear styling
                 StreamlitUtils.display_confidence_indicator(response.get('confidence', 'unknown'))
+                
+                # Evaluation metrics toggle using session state to prevent reruns
+                def toggle_metrics():
+                    st.session_state.show_metrics = not st.session_state.show_metrics
+                
+                st.button(
+                    "Toggle Evaluation Metrics", 
+                    on_click=toggle_metrics,
+                    key="toggle_metrics_button"
+                )
+                if st.session_state.show_metrics:
+                    st.write("✅ Evaluation metrics enabled")
+                else:
+                    st.write("❌ Evaluation metrics disabled")
             
             with col2:
+                # Display sources in its own container with clear styling
                 StreamlitUtils.display_sources(response.get('sources', []))
             
-            # Evaluation metrics (if enabled)
-            if st.checkbox("Show Evaluation Metrics", value=False):
+            # Evaluation metrics (if enabled) - placed below the confidence/sources for better layout
+            if st.session_state.show_metrics:
+                st.divider()
                 total_time = retrieval_time + generation_time
                 evaluation_results = self.evaluator.evaluate_response(
                     query, response, context_documents, response_time=total_time
                 )
                 StreamlitUtils.display_metrics(evaluation_results, "Response Quality Metrics")
+            
+            # Add visual divider before feedback section
+            st.divider()
             
             # Feedback collection
             self._render_feedback_section(query, answer)
@@ -298,28 +331,61 @@ class DocuMindApp:
         """Render feedback collection section"""
         st.subheader("📝 Feedback")
         
-        col1, col2 = st.columns([1, 2])
+        with st.container():
+            col1, col2 = st.columns([1, 2])
+            
+            with col1:
+                # Update the rating without causing a rerun
+                def update_rating(val):
+                    st.session_state.feedback_rating = val
+                
+                # Show stars corresponding to current rating
+                stars = "⭐" * st.session_state.feedback_rating
+                st.markdown(f"### {stars}")
+                
+                # Use buttons for rating selection instead of slider
+                rating_cols = st.columns(5)
+                for i, col in enumerate(rating_cols, 1):
+                    with col:
+                        if st.button(f"{i}", key=f"rate_{i}", 
+                                    help=f"Rate {i} stars", 
+                                    on_click=update_rating, args=(i,)):
+                            pass
+            
+            with col2:
+                # Update the feedback text without causing a rerun
+                def update_feedback(val):
+                    st.session_state.feedback_text = val
+                    
+                # Display the current feedback text
+                st.text_area(
+                    "Any corrections or suggestions?",
+                    value=st.session_state.feedback_text,
+                    placeholder="Optional: Provide feedback to help improve responses...",
+                    key="feedback_text_area",
+                    on_change=update_feedback,
+                    args=(st.session_state.feedback_text,)
+                )
         
-        with col1:
-            rating = st.select_slider(
-                "Rate this response:",
-                options=[1, 2, 3, 4, 5],
-                value=3,
-                format_func=lambda x: "⭐" * x
-            )
-        
+        col1, col2, col3 = st.columns([1, 1, 1])
         with col2:
-            corrections = st.text_area(
-                "Any corrections or suggestions?",
-                placeholder="Optional: Provide feedback to help improve responses..."
-            )
-        
-        if st.button("Submit Feedback"):
-            self.feedback_processor.process_user_feedback(
-                query, answer, rating, corrections, 
-                st.session_state.session_id
-            )
-            st.success("Thank you for your feedback!")
+            def submit_feedback():
+                self.feedback_processor.process_user_feedback(
+                    query, answer, st.session_state.feedback_rating, st.session_state.feedback_text, 
+                    st.session_state.session_id
+                )
+                st.session_state.feedback_submitted = True
+                
+            if 'feedback_submitted' not in st.session_state:
+                st.session_state.feedback_submitted = False
+                
+            if st.button("Submit Feedback", type="primary", on_click=submit_feedback):
+                pass
+                
+            if st.session_state.feedback_submitted:
+                st.success("Thank you for your feedback!")
+                # Reset the submitted state after displaying the message
+                st.session_state.feedback_submitted = False
     
     def _process_uploaded_documents(self, uploaded_files: List[Any]):
         """Process uploaded PDF documents"""

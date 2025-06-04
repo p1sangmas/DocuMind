@@ -1,14 +1,18 @@
 # 🧠 DocuMind - AI-Powered Knowledge Base Assistant
 
 ![DocuMind Logo](assets/logo.png)
-![Version](https://img.shields.io/badge/version-1.0.0-green?style=flat-square)
+![Version](https://img.shields.io/badge/version-1.1.0-green?style=flat-square)
 ![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
 
 ## ✅ **SYSTEM COMPLETED SUCCESSFULLY!**
 
-The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and running at `http://localhost:8501`!
+The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and available in two interface options:
+
+- **Streamlit Interface**: Available at `http://localhost:8501` (run with `streamlit run app.py`)
+- **Web Interface**: Available at `http://localhost:5000` (run with `python api.py`)
 
 **NEW FEATURES**:
+- 🌐 **Alternative Web Interface**: An HTML/CSS/JavaScript frontend that works alongside the Streamlit UI
 - 🔄 **Automatic Document Loading**: Documents in the `data/documents` folder are loaded automatically on startup
 - 📄 **OCR Support**: Added OCR capabilities for problematic PDFs (like those saved from websites)
 - 🔍 **PDF Diagnostics**: New utility to check and diagnose PDF processing issues
@@ -36,7 +40,7 @@ The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and ru
 
 ## 🚀 Technology Stack
 
-- **Frontend**: Streamlit (Interactive web interface)
+- **Frontend**: Streamlit, HTML/CSS/JavaScript (Web Interface)
 - **Document Processing**: PyPDF2, PyMuPDF, pdfplumber
 - **Embeddings**: Sentence-Transformers (all-MiniLM-L6-v2)
 - **Vector Database**: ChromaDB
@@ -63,9 +67,14 @@ The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and ru
    - **Option B**: Use the sidebar to upload PDF documents manually
 
 4. **Run the Application**
-   ```bash
-   streamlit run app.py
-   ```
+   - **For Streamlit Interface**:
+     ```bash
+     streamlit run app.py
+     ```
+   - **For Web Interface**:
+     ```bash
+     python api.py
+     ```
 
 5. **Start Querying**
    - Ask natural language questions about your documents
@@ -76,6 +85,7 @@ The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and ru
 ```
 DocuMind/
 ├── app.py                     # Main Streamlit application
+├── api.py                     # Alternative web interface (HTML/CSS/JavaScript)
 ├── check_pdf.py               # PDF diagnostic tool
 ├── OCR_SETUP.md               # OCR setup instructions
 ├── TEST_RESULTS.md            # Comprehensive test results
@@ -155,7 +165,7 @@ python verify_fixes.py --test autoload
 - **Embeddings**: Sentence-Transformers (all-MiniLM-L6-v2)
 - **Vector Database**: ChromaDB
 - **LLM**: Ollama (Llama 3.2 3B)
-- **Frontend**: Streamlit
+- **Frontend**: Streamlit, HTML/CSS/JavaScript
 - **Evaluation**: RAGAS-inspired framework
 - **Orchestration**: Custom pipeline architecture
 

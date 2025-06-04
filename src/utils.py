@@ -127,26 +127,39 @@ class StreamlitUtils:
     @staticmethod
     def display_metrics(metrics: Dict[str, float], title: str = "Performance Metrics"):
         """Display metrics in a nice format"""
-        st.subheader(title)
-        
-        # Create columns for metrics
-        cols = st.columns(len(metrics))
-        
-        for i, (metric_name, value) in enumerate(metrics.items()):
-            with cols[i]:
-                # Format metric name
-                display_name = metric_name.replace('_', ' ').title()
+        with st.container():
+            st.markdown(f"### 📊 {title}")
+            
+            # Create columns for metrics
+            num_cols = min(4, len(metrics))  # Limit to 4 columns per row for readability
+            num_rows = (len(metrics) + num_cols - 1) // num_cols
+            
+            # For each row of metrics
+            for row in range(num_rows):
+                # Calculate slice for this row
+                start_idx = row * num_cols
+                end_idx = min(start_idx + num_cols, len(metrics))
+                row_metrics = list(metrics.items())[start_idx:end_idx]
                 
-                # Format value based on type
-                if isinstance(value, float):
-                    if 0 <= value <= 1:
-                        formatted_value = f"{value:.2%}"
-                    else:
-                        formatted_value = f"{value:.2f}"
-                else:
-                    formatted_value = str(value)
+                # Create columns for this row
+                cols = st.columns(len(row_metrics))
                 
-                st.metric(display_name, formatted_value)
+                # Fill in the columns
+                for i, (metric_name, value) in enumerate(row_metrics):
+                    with cols[i]:
+                        # Format metric name
+                        display_name = metric_name.replace('_', ' ').title()
+                        
+                        # Format value based on type
+                        if isinstance(value, float):
+                            if 0 <= value <= 1:
+                                formatted_value = f"{value:.2%}"
+                            else:
+                                formatted_value = f"{value:.2f}"
+                        else:
+                            formatted_value = str(value)
+                        
+                        st.metric(display_name, formatted_value)
     
     @staticmethod
     def display_sources(sources: List[Dict[str, str]], title: str = "Sources"):
@@ -154,94 +167,96 @@ class StreamlitUtils:
         if not sources:
             return
             
-        st.subheader(title)
-        
-        for i, source in enumerate(sources, 1):
-            # Get the source document ID, with enhanced extraction
-            doc_id = source.get('document', 'Unknown')
+        with st.container():
+            st.markdown(f"### 📚 {title}")
             
-            # Normalize document IDs - strip any problematic prefixes
-            if doc_id.startswith('doc_'):
-                # For generic doc IDs, try to use a better identifier
-                if 'original_filename' in source:
-                    doc_id = source.get('original_filename')
-                elif 'title' in source:
-                    doc_id = source.get('title')
-            
-            # Priority 1: Try to use title if available
-            if 'title' in source and source['title']:
-                display_name = source.get('title')
-            # Priority 2: Try to use display_name if available
-            elif 'display_name' in source and source['display_name']:
-                display_name = source.get('display_name')
-            # Priority 3: Try to use original_filename if available
-            elif 'original_filename' in source:
-                display_name = source.get('original_filename')
-                # Remove .pdf extension if present
-                if display_name.lower().endswith('.pdf'):
-                    display_name = display_name[:-4]
-            # Priority 4: Try to extract from doc_id
-            elif '_' in doc_id and not doc_id.startswith('doc_') and not doc_id.startswith('tmp'):
-                # Try to parse the friendly name from ID format
-                try:
-                    # Get anything before the last underscore as the filename part
-                    filename_part = doc_id.rsplit('_', 1)[0]
-                    display_name = filename_part.replace('_', ' ')
-                    
-                    # Check if it's from original document naming format
-                    if display_name.startswith('doc ') or len(display_name.strip()) < 3:
-                        display_name = doc_id
-                except:
-                    display_name = doc_id
-            else:
-                display_name = doc_id
-            
-            # Extract page number if available
-            page_info = ""
-            if 'page' in source:
-                page_info = f" (Page {source['page']})"
+            for i, source in enumerate(sources, 1):
+                # Get the source document ID, with enhanced extraction
+                doc_id = source.get('document', 'Unknown')
                 
-            # Improve display name for doc_ID type sources
-            if display_name.startswith('doc_') or display_name == 'Unknown':
-                display_name = f"Document {i}"
-                
-            with st.expander(f"Source {i}: {display_name}{page_info}"):
-                col1, col2 = st.columns(2)
-                
-                with col1:
-                    # Only show Source ID if it's not a generic doc_ID format
-                    if not doc_id.startswith('doc_'):
-                        st.write(f"**Source ID:** {doc_id}")
-                        
-                    # Show author
-                    author = source.get('author', 'Unknown')
-                    st.write(f"**Author:** {author}")
-                
-                with col2:
-                    # Original filename if available
+                # Normalize document IDs - strip any problematic prefixes
+                if doc_id.startswith('doc_'):
+                    # For generic doc IDs, try to use a better identifier
                     if 'original_filename' in source:
-                        st.write(f"**File:** {source.get('original_filename')}")
-                    elif doc_id.startswith('doc_'):
-                        # If we only have a doc_ID, it's likely from collection
-                        st.write(f"**Source Type:** Generated from collection")
+                        doc_id = source.get('original_filename')
+                    elif 'title' in source:
+                        doc_id = source.get('title')
+                
+                # Priority 1: Try to use title if available
+                if 'title' in source and source['title']:
+                    display_name = source.get('title')
+                # Priority 2: Try to use display_name if available
+                elif 'display_name' in source and source['display_name']:
+                    display_name = source.get('display_name')
+                # Priority 3: Try to use original_filename if available
+                elif 'original_filename' in source:
+                    display_name = source.get('original_filename')
+                    # Remove .pdf extension if present
+                    if display_name.lower().endswith('.pdf'):
+                        display_name = display_name[:-4]
+                # Priority 4: Try to extract from doc_id
+                elif '_' in doc_id and not doc_id.startswith('doc_') and not doc_id.startswith('tmp'):
+                    # Try to parse the friendly name from ID format
+                    try:
+                        # Get anything before the last underscore as the filename part
+                        filename_part = doc_id.rsplit('_', 1)[0]
+                        display_name = filename_part.replace('_', ' ')
                         
-                    # Format date nicely if possible
-                    creation_date = source.get('creation_date', 'Unknown')
-                    if creation_date != 'Unknown':
-                        try:
-                            from datetime import datetime
-                            date_obj = datetime.fromisoformat(creation_date.replace('Z', '+00:00'))
-                            formatted_date = date_obj.strftime('%Y-%m-%d')
-                            st.write(f"**Date:** {formatted_date}")
-                        except:
-                            st.write(f"**Date:** {creation_date}")
-                    else:
-                        # Check if we're in a known default
-                        if doc_id.startswith('doc_'): 
-                            # For unknown dates in doc_ format, don't show anything
-                            pass
+                        # Check if it's from original document naming format
+                        if display_name.startswith('doc ') or len(display_name.strip()) < 3:
+                            display_name = doc_id
+                    except:
+                        display_name = doc_id
+                else:
+                    display_name = doc_id
+                
+                # Extract page number if available
+                page_info = ""
+                if 'page' in source:
+                    page_info = f" (Page {source['page']})"
+                    
+                # Improve display name for doc_ID type sources
+                if display_name.startswith('doc_') or display_name == 'Unknown':
+                    display_name = f"Document {i}"
+                
+                # Create a styled expander for each source
+                with st.expander(f"📄 {display_name}{page_info}"):
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        # Only show Source ID if it's not a generic doc_ID format
+                        if not doc_id.startswith('doc_'):
+                            st.write(f"**Source ID:** {doc_id}")
+                            
+                        # Show author
+                        author = source.get('author', 'Unknown')
+                        st.write(f"**Author:** {author}")
+                    
+                    with col2:
+                        # Original filename if available
+                        if 'original_filename' in source:
+                            st.write(f"**File:** {source.get('original_filename')}")
+                        elif doc_id.startswith('doc_'):
+                            # If we only have a doc_ID, it's likely from collection
+                            st.write(f"**Source Type:** Generated from collection")
+                        
+                        # Format date nicely if possible
+                        creation_date = source.get('creation_date', 'Unknown')
+                        if creation_date != 'Unknown':
+                            try:
+                                from datetime import datetime
+                                date_obj = datetime.fromisoformat(creation_date.replace('Z', '+00:00'))
+                                formatted_date = date_obj.strftime('%Y-%m-%d')
+                                st.write(f"**Date:** {formatted_date}")
+                            except:
+                                st.write(f"**Date:** {creation_date}")
                         else:
-                            st.write(f"**Date:** {creation_date}")
+                            # Check if we're in a known default
+                            if doc_id.startswith('doc_'): 
+                                # For unknown dates in doc_ format, don't show anything
+                                pass
+                            else:
+                                st.write(f"**Date:** {creation_date}")
     
     @staticmethod
     def display_confidence_indicator(confidence: str):
@@ -261,7 +276,9 @@ class StreamlitUtils:
         icon = confidence_colors.get(confidence, '⚪')
         description = confidence_descriptions.get(confidence, 'Unknown confidence level')
         
-        st.info(f"{icon} **Confidence:** {confidence.title()} - {description}")
+        with st.container():
+            st.markdown(f"### {icon} Confidence")
+            st.markdown(f"**{confidence.title()}** - {description}")
     
     @staticmethod
     def display_error_message(error_type: str, message: str = None):
@@ -304,21 +321,60 @@ class ValidationUtils:
     @staticmethod
     def validate_pdf_file(uploaded_file) -> tuple[bool, str]:
         """Validate uploaded PDF file"""
+        import logging
+        logger = logging.getLogger(__name__)
+        
         if uploaded_file is None:
+            logger.warning("Validation failed: No file uploaded")
             return False, "No file uploaded"
         
+        # Log file details for debugging
+        try:
+            file_details = f"File: {uploaded_file.name}, "
+            if hasattr(uploaded_file, 'content_type'):
+                file_details += f"Content-Type: {uploaded_file.content_type}, "
+            if hasattr(uploaded_file, 'size'):
+                file_details += f"Size: {uploaded_file.size} bytes, "
+            else:
+                file_details += "Size: unknown, "
+            logger.info(f"Validating file: {file_details}")
+        except Exception as e:
+            logger.warning(f"Error getting file details: {e}")
+        
         # Check file extension
-        if not uploaded_file.name.lower().endswith('.pdf'):
+        if not uploaded_file.filename.lower().endswith('.pdf'):
+            logger.warning(f"Validation failed: Invalid extension - {uploaded_file.filename}")
             return False, "File must be a PDF"
         
         # Check file size (limit to 50MB)
-        if uploaded_file.size > 50 * 1024 * 1024:
-            return False, "File size must be less than 50MB"
+        try:
+            # Different file objects might have size as an attribute or a method
+            file_size = 0
+            if hasattr(uploaded_file, 'size'):
+                file_size = uploaded_file.size
+            
+            if file_size > 50 * 1024 * 1024:
+                logger.warning(f"Validation failed: File too large - {file_size} bytes")
+                return False, "File size must be less than 50MB"
+            
+            # Check if file is not empty
+            if file_size == 0:
+                # Try to read the first few bytes to double-check
+                try:
+                    current_position = uploaded_file.tell()
+                    sample = uploaded_file.read(1024)
+                    uploaded_file.seek(current_position)  # Reset position
+                    
+                    if not sample or len(sample) == 0:
+                        logger.error(f"Validation failed: File is empty - {uploaded_file.filename}")
+                        return False, "File is empty (no content)"
+                except Exception as e:
+                    logger.error(f"Error reading file sample: {e}")
+            
+        except Exception as e:
+            logger.error(f"Error checking file size: {e}")
         
-        # Check if file is not empty
-        if uploaded_file.size == 0:
-            return False, "File is empty"
-        
+        logger.info(f"File validation successful: {uploaded_file.filename}")
         return True, "Valid PDF file"
     
     @staticmethod
