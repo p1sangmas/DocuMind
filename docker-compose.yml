@@ -21,7 +21,7 @@ services:
       - PORT=8080
       - DEBUG=${DEBUG:-false}
       - TZ=${TZ:-UTC}
-      - OLLAMA_BASE_URL=http://ollama:11434
+      - DOCKER_ENV=true
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://127.0.0.1:80/ || curl -f http://127.0.0.1:8080/api/status"]

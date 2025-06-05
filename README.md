@@ -54,7 +54,14 @@ If you prefer to run without Docker:
    pip install -r requirements.txt
    ```
 
-2. **Install OCR Dependencies (Optional)**
+2. **Install Ollama**
+   ```bash
+   # Follow Ollama installation instructions from https://ollama.ai/
+   # Run the Ollama service
+   ollama serve
+   ```
+
+3. **Install OCR Dependencies (Optional)**
    ```bash
    pip install pytesseract pdf2image pillow
    brew install tesseract poppler  # For macOS
@@ -162,6 +169,15 @@ Choose the right LLM based on your hardware:
 - Run diagnostic tool: `python tests/check_pdf.py path/to/document.pdf`
 - Enable OCR for problematic documents
 
+### 3. Ollama Connection Issues
+
+**Symptom**: Error connecting to Ollama service
+
+**Solution**:
+- For Docker: Ensure the Ollama container is running (`docker ps`)
+- For manual setup: Make sure Ollama is running (`ollama serve`)
+- See [Environment Setup Guide](documentation/ENVIRONMENT_SETUP.md) for details on connection configuration
+
 For more troubleshooting tips, see the [Full Documentation](documentation/DOCUMENTATION.md#troubleshooting).
 
 ## 📚 Documentation
@@ -170,6 +186,7 @@ Comprehensive documentation is available in the `documentation` folder:
 
 - [Complete User Guide](documentation/USER_GUIDE.md)
 - [Docker Setup Guide](documentation/DOCKER.md)
+- [Environment Setup Guide](documentation/ENVIRONMENT_SETUP.md)
 - [OCR Setup Instructions](documentation/OCR_SETUP.md)
 - [Full Technical Documentation](documentation/DOCUMENTATION.md)
 

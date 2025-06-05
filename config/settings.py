@@ -29,7 +29,11 @@ KEYWORD_WEIGHT = 0.3
 
 # Ollama configuration
 OLLAMA_MODEL = "llama3.2:3b"
-OLLAMA_BASE_URL = "http://ollama:11434"
+
+# Determine Ollama URL based on environment
+# In Docker, Ollama is accessible via service name; otherwise use localhost
+import os
+OLLAMA_BASE_URL = "http://ollama:11434" if os.environ.get("DOCKER_ENV") == "true" else "http://localhost:11434"
 
 # Streamlit configuration
 PAGE_TITLE = "DocuMind - AI Knowledge Assistant"
