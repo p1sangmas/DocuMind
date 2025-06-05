@@ -38,14 +38,15 @@ class OllamaHandler:
                     "num_predict": max_tokens,
                     "temperature": temperature,
                     "top_p": 0.9,
-                    "top_k": 40
+                    "top_k": 40,
+                    "num_thread": 4  # Utilize multiple threads for generation
                 }
             }
             
             response = requests.post(
                 self.generate_url,
                 json=payload,
-                timeout=60
+                timeout=180  # Increased timeout to 3 minutes
             )
             
             if response.status_code == 200:
@@ -55,6 +56,9 @@ class OllamaHandler:
                 logger.error(f"Ollama generate failed: {response.status_code} - {response.text}")
                 return ""
                 
+        except requests.exceptions.Timeout:
+            logger.error("Ollama response timed out. This could be due to high system load or complex query processing.")
+            return "I'm sorry, but the response generation timed out. This might be because the system is under heavy load or the query is particularly complex. Please try again with a simpler query or try later when the system is less busy."
         except Exception as e:
             logger.error(f"Error generating response: {e}")
             return ""

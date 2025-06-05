@@ -1,0 +1,44 @@
+# filepath: /Users/fakhrulfauzi/Documents/Projects/DocuMind/docker-compose.yml
+# Docker Compose file for DocuMind
+
+services:
+  documind:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: documind
+    ports:
+      - "${WEB_UI_PORT:-8080}:80"   # Map container's port 80 (nginx/web) to host port (default 8080)
+      - "${API_PORT:-8000}:8080"    # Map container's port 8080 (API) to host port (default 8000)
+    volumes:
+      - ./data:/app/data:rw
+      - ./config:/app/config:ro
+      - ./data/models_cache:/home/docuuser/.cache/huggingface:rw
+      - ./data/chroma_cache:/home/docuuser/.cache/chroma:rw
+      - ./web:/app/web:ro
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8080
+      - DEBUG=${DEBUG:-false}
+      - TZ=${TZ:-UTC}
+      - OLLAMA_BASE_URL=http://ollama:11434
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:80/ || curl -f http://127.0.0.1:8080/api/status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      ollama:
+        condition: service_started
+        
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    volumes:
+      - ./ollama:/root/.ollama
+    ports:
+      - "${OLLAMA_PORT:-11434}:11434"
+    restart: unless-stopped
+    # GPU configuration is handled by docker-compose.gpu.yml overlay

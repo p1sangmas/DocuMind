@@ -25,6 +25,8 @@ const confirmClearCheckbox = document.getElementById('confirm-clear-checkbox');
 const confirmClearBtn = document.getElementById('confirm-clear-btn');
 const ollamaStatus = document.getElementById('ollama-status');
 const ocrStatus = document.getElementById('ocr-status');
+const ollamaValue = document.getElementById('ollama-value');
+const ocrValue = document.getElementById('ocr-value');
 const ollamaWarning = document.getElementById('ollama-warning');
 const ocrWarning = document.getElementById('ocr-warning');
 const ollamaHelpBtn = document.getElementById('ollama-help-btn');
@@ -49,6 +51,9 @@ function init() {
     sessionId = generateSessionId();
     sessionIdEl.textContent = sessionId;
     
+    // Initialize the notification panel
+    initNotificationPanel();
+    
     // Check system status
     checkSystemStatus();
     
@@ -57,6 +62,69 @@ function init() {
     
     // Set up event listeners
     setupEventListeners();
+    
+    // Add animations for initial page load
+    initPageAnimations();
+}
+
+// Add initial page load animations
+function initPageAnimations() {
+    // Ensure chat container is positioned higher on page load
+    setTimeout(() => {
+        const chatContainer = document.getElementById('chat-container');
+        if (chatContainer && !chatContainer.classList.contains('hidden')) {
+            chatContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Position chat input for better visibility
+            const chatInputContainer = document.querySelector('.chat-input-container');
+            if (chatInputContainer) {
+                chatInputContainer.style.opacity = 0;
+                chatInputContainer.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    chatInputContainer.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+                    chatInputContainer.style.opacity = 1;
+                    chatInputContainer.style.transform = 'translateY(0)';
+                }, 300);
+            }
+        }
+    }, 500);
+    // Animate sidebar sections
+    const sidebarSections = document.querySelectorAll('.sidebar-section');
+    sidebarSections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            section.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }, 100 + (index * 100)); // Staggered animation
+    });
+    
+    // Animate header elements
+    const header = document.querySelector('.sidebar-header');
+    if (header) {
+        header.style.opacity = '0';
+        
+        setTimeout(() => {
+            header.style.transition = 'opacity 0.5s ease';
+            header.style.opacity = '1';
+        }, 100);
+    }
+    
+    // Prepare tab panes for animation
+    const activePane = document.querySelector('.tab-pane.active');
+    if (activePane) {
+        activePane.style.opacity = '0';
+        activePane.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            activePane.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            activePane.style.opacity = '1';
+            activePane.style.transform = 'translateY(0)';
+        }, 300);
+    }
 }
 
 // Generate a unique session ID
@@ -84,6 +152,10 @@ async function checkSystemStatus() {
         // Update system status indicators
         updateStatusIndicator(ollamaStatus, data.ollama_available);
         updateStatusIndicator(ocrStatus, data.ocr_available);
+        
+        // Update status text values
+        ollamaValue.textContent = data.ollama_available ? 'Available' : 'Not Available';
+        ocrValue.textContent = data.ocr_available ? 'Available' : 'Not Available';
         
         // Show/hide warnings
         ollamaWarning.classList.toggle('hidden', data.ollama_available);
@@ -138,6 +210,13 @@ function setupEventListeners() {
             e.preventDefault();
             sendMessage();
         }
+    });
+    
+    // Auto-resize text area
+    chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        const newHeight = Math.min(this.scrollHeight, 120); // Max height of 120px
+        this.style.height = `${newHeight}px`;
     });
     
     // Send button
@@ -196,12 +275,55 @@ function setupEventListeners() {
     // Clear conversation
     clearConversationBtn.addEventListener('click', clearConversation);
     
-    // Expandable sections
+    // Expandable sections with smooth animations
     expandBtns.forEach(button => {
         button.addEventListener('click', function() {
             const content = this.nextElementSibling;
-            content.classList.toggle('hidden');
+            const isExpanding = content.classList.contains('hidden');
+            
             this.classList.toggle('expanded');
+            
+            if (isExpanding) {
+                // Expanding: First remove hidden, but set height to 0
+                content.classList.remove('hidden');
+                content.style.height = '0';
+                content.style.opacity = '0';
+                content.style.overflow = 'hidden';
+                
+                // Force browser to recognize the element height
+                const expandedHeight = content.scrollHeight;
+                
+                // Animate the expansion
+                setTimeout(() => {
+                    content.style.transition = 'height 0.3s ease-out, opacity 0.3s ease-out';
+                    content.style.height = expandedHeight + 'px';
+                    content.style.opacity = '1';
+                    
+                    // Remove the height constraint after animation
+                    setTimeout(() => {
+                        content.style.height = 'auto';
+                    }, 300);
+                }, 10);
+            } else {
+                // Collapsing: First set a fixed height
+                content.style.height = content.scrollHeight + 'px';
+                content.style.overflow = 'hidden';
+                
+                // Force reflow
+                content.offsetHeight;
+                
+                // Then animate to 0
+                content.style.transition = 'height 0.3s ease-out, opacity 0.3s ease-out';
+                content.style.height = '0';
+                content.style.opacity = '0';
+                
+                // After animation, add the hidden class
+                setTimeout(() => {
+                    content.classList.add('hidden');
+                    content.style.height = '';
+                    content.style.opacity = '';
+                }, 300);
+            }
         });
     });
 }
@@ -283,8 +405,19 @@ function addMessage(text, role, data = null) {
     messageEl.className = `message ${role}`;
     messageEl.textContent = text;
     
+    // Set initial state for animation
+    messageEl.style.opacity = '0';
+    messageEl.style.transform = 'translateY(20px)';
+    
     // Add to chat messages
     chatMessages.appendChild(messageEl);
+    
+    // Trigger animation after a small delay
+    setTimeout(() => {
+        messageEl.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+        messageEl.style.opacity = '1';
+        messageEl.style.transform = 'translateY(0)';
+    }, 10);
     
     // Add metadata for assistant messages
     if (role === 'assistant' && data) {
@@ -308,7 +441,7 @@ function addMessage(text, role, data = null) {
         // Sources
         if (data.sources && data.sources.length) {
             const sourcesEl = document.createElement('div');
-            sourcesEl.className = 'response-section';
+            sourcesEl.className = 'response-section collapsible';
             sourcesEl.innerHTML = '<h4>Sources</h4>';
             
             const sourcesList = document.createElement('div');
@@ -335,12 +468,18 @@ function addMessage(text, role, data = null) {
             
             sourcesEl.appendChild(sourcesList);
             metaEl.appendChild(sourcesEl);
+            
+            // Add click handler to make sources collapsible
+            const sourcesHeader = sourcesEl.querySelector('h4');
+            sourcesHeader.addEventListener('click', () => {
+                sourcesEl.classList.toggle('collapsed');
+            });
         }
         
         // Metrics (optional)
         if (data.evaluation) {
             const metricsEl = document.createElement('div');
-            metricsEl.className = 'response-section';
+            metricsEl.className = 'response-section collapsible';
             metricsEl.innerHTML = '<h4>Evaluation Metrics</h4>';
             
             const metricsContainer = document.createElement('div');
@@ -368,6 +507,12 @@ function addMessage(text, role, data = null) {
             
             metricsEl.appendChild(metricsContainer);
             metaEl.appendChild(metricsEl);
+            
+            // Add click handler to make metrics collapsible
+            const metricsHeader = metricsEl.querySelector('h4');
+            metricsHeader.addEventListener('click', () => {
+                metricsEl.classList.toggle('collapsed');
+            });
         }
         
         // Add feedback section
@@ -492,29 +637,45 @@ function handleFileUpload() {
     if (selectedFiles.length > 0) {
         processDocsBtn.disabled = false;
         
-        // Display selected files
+        // Display selected files with animation
         selectedFiles.forEach((file, index) => {
             const fileItem = document.createElement('div');
             fileItem.className = 'selected-file-item';
+            
+            // Set up for animation
+            fileItem.style.opacity = '0';
+            fileItem.style.transform = 'translateY(10px)';
             
             // Validate file to show proper status
             const validation = validatePdfFile(file);
             const validationClass = validation.isValid ? 'file-valid' : 'file-invalid';
             const validationStatus = validation.isValid ? 'Ready to process' : validation.message;
-            const fileIcon = validation.isValid ? '📄' : '⚠️';
+            const fileIcon = validation.isValid ? '<i class="fas fa-file-pdf"></i>' : '<i class="fas fa-exclamation-triangle"></i>';
             
             fileItem.innerHTML = `
                 <div class="selected-file-header">
                     <span>${fileIcon} ${file.name}</span>
-                    <button class="remove-file-btn" data-index="${index}" title="Remove file">×</button>
+                    <button class="remove-file-btn" data-index="${index}" title="Remove file">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
                 <div class="selected-file-details">
                     <div>Size: ${(file.size / 1024).toFixed(1)} KB</div>
-                    <div class="${validationClass}">Status: ${validationStatus}</div>
+                    <div class="${validationClass}">
+                        <i class="fas ${validation.isValid ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                        ${validationStatus}
+                    </div>
                 </div>
             `;
             
             selectedFilesContainer.appendChild(fileItem);
+            
+            // Trigger animation after a small delay to ensure DOM update
+            setTimeout(() => {
+                fileItem.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                fileItem.style.opacity = '1';
+                fileItem.style.transform = 'translateY(0)';
+            }, 10 + (index * 50)); // Stagger animations
         });
         
         // Add event listeners to remove buttons
@@ -662,14 +823,12 @@ async function processDocuments() {
             // Update button text to show current file
             processDocsBtn.textContent = `Processing ${i+1}/${selectedFiles.length}...`;
             
-            // Show progress toast and update UI with percentage
+            // Progress text
             const progressText = `Processing ${file.name} (${i+1}/${selectedFiles.length})...`;
             const progressPercent = Math.round(((i + 0.5) / selectedFiles.length) * 100);
             
-            showToast(`📄 ${progressText} ${progressPercent}%`, 'info');
-            
-            // Add a temporary processing file indicator to the UI using our helper function
-            updateDocumentStatus(file, 'processing');
+            // Update UI with status - this will now add to notification panel too
+            updateDocumentStatus(file, 'processing', `${progressText} ${progressPercent}%`);
             
             // Create new FormData for each file to ensure clean state
             const formData = new FormData();
@@ -692,9 +851,8 @@ async function processDocuments() {
             
             if (data.error) {
                 console.error('File upload error:', data.error);
-                showToast(`Error: ${data.error}`, 'error');
                 
-                // Update UI to show error
+                // Update UI and notification to show error
                 updateDocumentStatus(file, 'error', `Error: ${data.error}`);
                 continue;
             }
@@ -708,7 +866,9 @@ async function processDocuments() {
                 
                 // Update with real data from API
                 await updateProcessedFilesList();
-                showToast(`✅ ${file.name} processed successfully!`, 'success');
+                
+                // Update status to success (this updates the notification too)
+                updateDocumentStatus(file, 'success', 'Successfully processed');
             } else {
                 console.warn('No file_info in response:', data);
                 
@@ -728,11 +888,12 @@ async function processDocuments() {
         processDocsBtn.disabled = true;
         processDocsBtn.textContent = originalText;
         
-        showToast(`🎉 All ${fileCount} documents processed successfully!`, 'success');
+        // Add a summary notification
+        addNotification(`🎉 All ${fileCount} documents processed successfully!`, 'success');
         
     } catch (error) {
         console.error('Error processing documents:', error);
-        showToast('Error connecting to API server. Please try again.', 'error');
+        addNotification('Error connecting to API server. Please try again.', 'error');
     } finally {
         // Restore button state
         processDocsBtn.textContent = originalText;
@@ -748,7 +909,32 @@ function updateDocumentStatus(file, status = 'processing', message = null) {
         'error': 'error-message'
     };
     
-    // Look for existing temporary element for this file
+    // Track notification ID for updates
+    if (!file.notificationId) {
+        // Create icon for notification
+        const icon = status === 'processing' ? '⏳' : status === 'success' ? '✅' : '❌';
+        const statusMessage = message || (status === 'processing' ? 'Processing... please wait' : 
+                              status === 'success' ? 'Successfully processed' : 'Error processing file');
+        
+        // Create notification message
+        const notificationMsg = `${icon} ${file.name}: ${statusMessage}`;
+        
+        // Add to the notification panel
+        file.notificationId = showNotification(notificationMsg, status === 'processing' ? 'info' : status);
+    } else if (file.notificationId) {
+        // Update existing notification
+        const icon = status === 'processing' ? '⏳' : status === 'success' ? '✅' : '❌';
+        const statusMessage = message || (status === 'processing' ? 'Processing... please wait' : 
+                              status === 'success' ? 'Successfully processed' : 'Error processing file');
+        
+        // Update notification message
+        const notificationMsg = `${icon} ${file.name}: ${statusMessage}`;
+        
+        // Update notification
+        updateNotification(file.notificationId, notificationMsg, status === 'processing' ? 'info' : status);
+    }
+    
+    // Look for existing temporary element for this file (UI in sidebar)
     const existingElements = Array.from(processedFilesList.children);
     const tempElement = existingElements.find(el => 
         el.textContent.includes(file.name) && 
@@ -947,20 +1133,61 @@ function clearConversation() {
     showToast('Conversation history cleared!', 'success');
 }
 
-// Switch tab
+// Switch tab with smooth animation
 function switchTab(tabId) {
-    // Deactivate all tabs
+    // Get current and target panes
+    const currentPane = document.querySelector('.tab-pane.active');
+    const targetPane = document.getElementById(`${tabId}-tab`);
+    
+    // No change if clicking current tab
+    if (currentPane === targetPane) return;
+    
+    // Update button states
     tabBtns.forEach(btn => {
         btn.classList.remove('active');
+        if (btn.dataset.tab === tabId) {
+            btn.classList.add('active');
+        }
     });
     
-    tabPanes.forEach(pane => {
-        pane.classList.remove('active');
-    });
-    
-    // Activate selected tab
-    document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active');
-    document.getElementById(`${tabId}-tab`).classList.add('active');
+    // If there's an active pane, animate it out first
+    if (currentPane) {
+        // First set transition
+        currentPane.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+        // Then animate out
+        currentPane.style.opacity = '0';
+        currentPane.style.transform = 'translateY(10px)';
+        
+        // After animation completes, hide current and show new
+        setTimeout(() => {
+            currentPane.classList.remove('active');
+            currentPane.style.display = 'none'; // Ensure it's hidden
+            
+            // Prepare target for animation
+            targetPane.classList.add('active');
+            targetPane.style.opacity = '0';
+            targetPane.style.transform = 'translateY(10px)';
+            targetPane.style.display = 'flex';
+            
+            // Trigger animation in
+            setTimeout(() => {
+                targetPane.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+                targetPane.style.opacity = '1';
+                targetPane.style.transform = 'translateY(0)';
+            }, 20);
+        }, 300);
+    } else {
+        // No active pane, just show the target with animation
+        targetPane.classList.add('active');
+        targetPane.style.opacity = '0';
+        targetPane.style.transform = 'translateY(10px)';
+        
+        setTimeout(() => {
+            targetPane.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+            targetPane.style.opacity = '1';
+            targetPane.style.transform = 'translateY(0)';
+        }, 20);
+    }
 }
 
 // Add loading indicator
@@ -973,9 +1200,12 @@ function addLoadingIndicator() {
     return loaderEl;
 }
 
-// Show a toast message
+// Show a toast message - now uses the notification panel
 function showToast(message, type = 'info') {
-    // Create toast container if it doesn't exist
+    // Add to the notification panel
+    showNotification(message, type);
+    
+    // Create a modern toast notification that will disappear after animation completes
     let toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
@@ -983,20 +1213,39 @@ function showToast(message, type = 'info') {
         document.body.appendChild(toastContainer);
     }
     
-    // Create toast
+    // Get the appropriate icon based on type
+    let icon = '';
+    switch(type) {
+        case 'success':
+            icon = '<i class="fas fa-check-circle"></i> ';
+            break;
+        case 'warning':
+            icon = '<i class="fas fa-exclamation-triangle"></i> ';
+            break;
+        case 'error':
+            icon = '<i class="fas fa-times-circle"></i> ';
+            break;
+        default: // info
+            icon = '<i class="fas fa-info-circle"></i> ';
+    }
+    
+    // Create toast with animation
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-    toast.textContent = message;
+    toast.innerHTML = `${icon} ${message}`;
     
     // Add toast to container
     toastContainer.appendChild(toast);
     
-    // Remove toast after 3 seconds
+    // Toast will be automatically removed after animation completes (defined in CSS)
+    // But we'll also manually remove it as a fallback
     setTimeout(() => {
         toast.classList.add('toast-fade-out');
         setTimeout(() => {
-            toast.remove();
-        }, 300);
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 500);
     }, 3000);
 }
 

@@ -1,0 +1,15 @@
+# filepath: /Users/fakhrulfauzi/Documents/Projects/DocuMind/docker-compose.gpu.yml
+# This file is an override for docker-compose.yml to enable GPU support
+# To use: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+
+version: '3.8'
+
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

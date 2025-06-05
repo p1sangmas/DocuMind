@@ -182,7 +182,7 @@ class DocuMindApp:
         
         if not OCR_AVAILABLE:
             if st.sidebar.button("How to enable OCR"):
-                st.sidebar.info("See OCR_SETUP.md for instructions on enabling OCR support for better PDF processing.")
+                st.sidebar.info("See documentation/OCR_SETUP.md for instructions on enabling OCR support for better PDF processing.")
         
         if not ollama_status:
             st.sidebar.warning("⚠️ Ollama is not running. Please start Ollama with the llama3.1:8b model.")

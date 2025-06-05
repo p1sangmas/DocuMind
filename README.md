@@ -1,54 +1,53 @@
 # 🧠 DocuMind - AI-Powered Knowledge Base Assistant
 
-![DocuMind Logo](assets/logo.png)
-![Version](https://img.shields.io/badge/version-1.1.0-green?style=flat-square)
-![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)
+<div align="center">
+  <img src="assets/logo.png" alt="DocuMind Logo" width="200">
+  <br>
+  <img src="https://img.shields.io/badge/version-1.1.0-green?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-blue?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/platform-Docker-blue?style=flat-square" alt="Platform">
+  <img src="https://img.shields.io/badge/LLM-Llama%203.2%203B-orange?style=flat-square" alt="LLM">
+</div>
 
-## ✅ **SYSTEM COMPLETED SUCCESSFULLY!**
+## 🚀 Overview
 
-The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and available in two interface options:
+DocuMind is a privacy-focused, self-hosted AI assistant that helps you extract insights from your PDF documents using local LLMs through Ollama. Ask questions about your documents in natural language and receive accurate answers with source citations - all without sending your data to external services.
 
-- **Streamlit Interface**: Available at `http://localhost:8501` (run with `streamlit run app.py`)
-- **Web Interface**: Available at `http://localhost:5000` (run with `python api.py`)
+<div align="center">
+  <h3>📄 Upload Documents → 🔍 Ask Questions → 🤖 Get AI Answers</h3>
+</div>
 
-**NEW FEATURES**:
-- 🌐 **Alternative Web Interface**: An HTML/CSS/JavaScript frontend that works alongside the Streamlit UI
-- 🔄 **Automatic Document Loading**: Documents in the `data/documents` folder are loaded automatically on startup
-- 📄 **OCR Support**: Added OCR capabilities for problematic PDFs (like those saved from websites)
-- 🔍 **PDF Diagnostics**: New utility to check and diagnose PDF processing issues
+## ✨ Key Features
 
-### 🎯 **What You Can Do Now:**
-
-1. **📄 Add Documents** - Either place PDFs in the `data/documents` folder for auto-loading, or upload via the sidebar
-2. **🔍 Ask Questions** - Query your documents in natural language
-3. **🤖 Get AI Answers** - Receive contextual responses with source citations
-4. **📊 Monitor Performance** - View analytics and evaluation metrics
-5. **💬 Provide Feedback** - Help improve the system with your input
-
-## 🌟 Key Features Implemented
-
-- **📄 Multi-format PDF Processing**: Robust text extraction with fallback mechanisms and OCR support
-- **📁 Automatic Document Loading**: Ability to auto-load PDFs from the documents directory
-- **🔍 Hybrid Retrieval System**: Combines semantic similarity with keyword matching
-- **🤖 Local AI Integration**: Uses Ollama (Llama 3.2 3B) for privacy-preserving responses
+- **🔒 Privacy First**: All processing happens locally - no external API calls
+- **📄 Multi-format PDF Processing**: Robust text extraction with OCR support
+- **🔍 Hybrid Retrieval System**: Combines semantic and keyword search for accuracy
+- **🤖 Local LLM Integration**: Uses Ollama (Llama 3.2 3B) for responses
 - **💬 Conversation Memory**: Maintains context across multiple questions
-- **📊 Source Attribution**: Always shows which documents informed each answer
-- **⚡ Real-time Evaluation**: Built-in quality metrics inspired by RAGAS
-- **🎯 Adaptive Query Processing**: Routes different query types to specialized chains
-- **📈 Analytics Dashboard**: Performance metrics and user feedback analysis
-- **🔒 Privacy-First**: All processing happens locally - no external APIs
+- **📊 Source Attribution**: Shows which documents informed each answer
+- **🔄 Automatic Document Loading**: Auto-loads PDFs from the documents directory
+- **🌐 Dual Interfaces**: Both Streamlit UI and HTML/CSS/JS web interface
+- **⚡ Docker Ready**: Simple setup with Docker and GPU acceleration support
 
-## 🚀 Technology Stack
+## 🚀 Quick Start with Docker (Recommended)
 
-- **Frontend**: Streamlit, HTML/CSS/JavaScript (Web Interface)
-- **Document Processing**: PyPDF2, PyMuPDF, pdfplumber
-- **Embeddings**: Sentence-Transformers (all-MiniLM-L6-v2)
-- **Vector Database**: ChromaDB
-- **LLM**: Ollama with Llama 3.2 3B
-- **Evaluation**: Custom RAGAS-inspired framework
-- **Feedback**: SQLite-based system
+The easiest way to get started is using the included Docker helper script:
 
-## Quick Start
+```bash
+# Make the script executable (if needed)
+chmod +x run_docker.sh
+
+# Run the script and follow the menu options
+./run_docker.sh
+```
+
+Select option 1 from the menu to start DocuMind, then:
+- **Web UI**: http://localhost:8080
+- **API Endpoint**: http://localhost:8000/api
+
+## 💻 Manual Setup (Alternative)
+
+If you prefer to run without Docker:
 
 1. **Install Dependencies**
    ```bash
@@ -59,56 +58,70 @@ The DocuMind AI-Powered Knowledge Base Assistant is now fully implemented and av
    ```bash
    pip install pytesseract pdf2image pillow
    brew install tesseract poppler  # For macOS
-   # See OCR_SETUP.md for other operating systems
+   # See documentation/OCR_SETUP.md for other OS instructions
    ```
 
-3. **Add Documents (Choose One)**
-   - **Option A**: Place PDF files in the `data/documents` directory for auto-loading
-   - **Option B**: Use the sidebar to upload PDF documents manually
+3. **Add Documents**
+   - Place PDF files in the `data/documents` directory
 
 4. **Run the Application**
-   - **For Streamlit Interface**:
-     ```bash
-     streamlit run app.py
-     ```
-   - **For Web Interface**:
-     ```bash
-     python api.py
-     ```
+   ```bash
+   # Start the Web Interface
+   python api.py
+   
+   # OR start the Streamlit Interface
+   streamlit run app.py
+   ```
 
-5. **Start Querying**
-   - Ask natural language questions about your documents
-   - Get contextual answers with source citations
-
-## Project Structure
+## 🔧 System Architecture
 
 ```
 DocuMind/
 ├── app.py                     # Main Streamlit application
 ├── api.py                     # Alternative web interface (HTML/CSS/JavaScript)
-├── check_pdf.py               # PDF diagnostic tool
-├── OCR_SETUP.md               # OCR setup instructions
-├── TEST_RESULTS.md            # Comprehensive test results
-├── test_documind.py           # Main test suite
-├── test_setup.py              # Setup verification tests
+├── docker-entrypoint.sh       # Docker container startup script
+├── docker-compose.yml         # Container orchestration configuration
+├── docker-compose.gpu.yml     # GPU support configuration
+├── Dockerfile                 # Container definition
+├── run_docker.sh              # Docker helper script
 ├── src/
 │   ├── document_processor.py  # PDF processing and extraction with OCR
 │   ├── chunking.py            # Semantic text chunking
 │   ├── retriever.py           # Hybrid retrieval system
 │   ├── llm_handler.py         # LLM integration and prompts
 │   ├── evaluator.py           # Evaluation framework
+│   ├── preload_models.py      # Model preloading script
 │   └── utils.py               # Utility functions
 ├── data/
 │   ├── documents/             # PDF documents for auto-loading
 │   ├── vectorstore/           # Chroma vector database
-│   └── feedback.db            # SQLite feedback database
+│   ├── models_cache/          # Hugging Face model cache
+│   └── chroma_cache/          # ChromaDB ONNX model cache
 ├── config/
-    └── settings.py            # Configuration settings
+│   └── settings.py            # Configuration settings
+├── documentation/             # Detailed documentation files
+├── tests/                     # Testing and diagnostic tools
+└── web/                       # Web UI assets (HTML/CSS/JS)
 ```
 
-## Advanced Features
+## 📊 Performance Optimization
 
-### 🔄 Auto-Loading Documents
+### Embedding Model Caching
+
+DocuMind pre-downloads and caches embedding models to improve startup and query time:
+
+- Models are stored in `./data/models_cache/`
+- ONNX optimized versions are kept in `./data/chroma_cache/onnx_models/`
+
+### LLM Selection
+
+Choose the right LLM based on your hardware:
+- **High-end systems**: Use larger models like `llama3.2:3b` (default)
+- **Low-resource systems**: Switch to `phi3:mini` for faster responses (option 5 in the run_docker.sh menu)
+
+## 🔍 Advanced Features
+
+### Auto-Loading Documents
 - Documents placed in the `data/documents` directory are automatically loaded when the app starts
 - Configure auto-loading behavior in `config/settings.py`:
   ```python
@@ -116,94 +129,60 @@ DocuMind/
   AUTO_LOAD_SKIP_EXISTING = True  # Skip already processed documents
   ```
 
-### 📷 OCR Support for Problematic PDFs
+### OCR Support for Problematic PDFs
 - OCR (Optical Character Recognition) processing for difficult PDFs
 - Automatically detects when a PDF needs OCR and applies it
 - Perfect for PDFs saved from websites that have selectable text but don't parse correctly
-- See `OCR_SETUP.md` for detailed setup instructions
+- See [OCR Setup Guide](documentation/OCR_SETUP.md) for detailed setup instructions
 
-### 🔍 PDF Diagnostic Tool
-- Use `check_pdf.py` to diagnose problematic PDFs:
+### PDF Diagnostic Tool
+- Use `tests/check_pdf.py` to diagnose problematic PDFs:
   ```bash
-  python check_pdf.py path/to/document.pdf
+  python tests/check_pdf.py path/to/document.pdf
   ```
 - Identifies which extraction method works best for each document
 - Determines if OCR processing is recommended
 
-## Recent Fixes and Improvements
+## 🛠️ Troubleshooting Common Issues
 
-### 1. Enhanced Source Attribution 
+### 1. Timeout Error During Query Processing
 
-Fixed an issue where some document sources were displayed as "Unknown" or with generic identifiers like "doc_41":
+**Symptom**: Requests timeout with error: "Error generating response: Read timed out."
 
-- Improved metadata extraction from documents
-- Added better fallback handling for documents with missing metadata
-- Enhanced document ID normalization for consistent display
-- Added verification utility to check source metadata handling
+**Solution**:
+- Switch to a smaller LLM model through option 5 in the run_docker.sh script
+- Restart the containers to apply changes
 
-To verify the fix is working correctly, run:
-```bash
-python verify_fixes.py --test metadata
-```
+### 2. Document Loading Issues
 
-### 2. Auto-Loading Improvements
+**Symptom**: Documents fail to load or extract properly
 
-Improved the auto-loading feature to better handle document metadata:
+**Solution**:
+- Check the format of your PDF
+- Run diagnostic tool: `python tests/check_pdf.py path/to/document.pdf`
+- Enable OCR for problematic documents
 
-- Enhanced metadata extraction from auto-loaded documents
-- Improved display of auto-loaded documents in the UI with dedicated icons
-- Added verification utility to test auto-loading functionality
+For more troubleshooting tips, see the [Full Documentation](documentation/DOCUMENTATION.md#troubleshooting).
 
-To verify auto-loading is working correctly, run:
-```bash
-python verify_fixes.py --test autoload
-```
+## 📚 Documentation
 
-## Technology Stack
+Comprehensive documentation is available in the `documentation` folder:
+
+- [Complete User Guide](documentation/USER_GUIDE.md)
+- [Docker Setup Guide](documentation/DOCKER.md)
+- [OCR Setup Instructions](documentation/OCR_SETUP.md)
+- [Full Technical Documentation](documentation/DOCUMENTATION.md)
+
+## 📋 Technology Stack
 
 - **Document Processing**: PyPDF2, PyMuPDF, pdfplumber, Tesseract OCR
 - **Embeddings**: Sentence-Transformers (all-MiniLM-L6-v2)
 - **Vector Database**: ChromaDB
 - **LLM**: Ollama (Llama 3.2 3B)
 - **Frontend**: Streamlit, HTML/CSS/JavaScript
-- **Evaluation**: RAGAS-inspired framework
-- **Orchestration**: Custom pipeline architecture
+- **Backend**: Python FastAPI
+- **Containers**: Docker, Docker Compose
 
-## Testing & Troubleshooting
+## 📄 License
 
-### Verify Setup
-Run the test verification script to check if all components are properly set up:
-```bash
-python test_setup.py
-```
-
-### Run Comprehensive Tests
-Run the full test suite to verify all components:
-```bash
-python test_documind.py
-```
-
-### Common Issues
-
-1. **PDF Processing Issues**
-   - For PDFs that don't parse correctly, try enabling OCR (see OCR_SETUP.md)
-   - Use `check_pdf.py` to diagnose specific document issues
-
-2. **Ollama Connection Issues**
-   - Make sure Ollama is running: `ollama serve`
-   - Verify model is installed: `ollama list`
-
-3. **Vector Database Issues**
-   - If experiencing issues with ChromaDB, try resetting: `python reset_chroma.py`
-
-4. **Document Auto-Loading Not Working**
-   - Check `config/settings.py` to ensure AUTO_LOAD_DOCUMENTS is set to True
-   - Verify PDFs are in the correct location: `data/documents/`
-
-5. **Source Display Issues**
-   - If source documents are showing as "Unknown" or with generic IDs (like "doc_41")
-   - Run the verification script: `python verify_fixes.py --test metadata`
-   - Fix existing document metadata: `python fix_metadata.py --all`
-   - If issues persist, clear the knowledge base and reload documents
-
-See `TEST_RESULTS.md` for detailed information on system testing and performance.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

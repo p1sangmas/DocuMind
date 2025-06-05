@@ -1,6 +1,9 @@
 # Directories to ignore
 data/documents/
 data/vectorstore/
+data/models_cache/
+data/chroma_cache/
+ollama/
 tests/
 __pycache__/
 */__pycache__/
@@ -23,13 +26,26 @@ hard_reset.py
 ehthumbs.db
 Thumbs.db
 
+# SSH keys and security
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*.pem
+*.key
+
 # Environment and sensitive data
 .env
+.env.*
+!.env.example
 .venv
 .idea/
 .vscode/
 *.swp
 *~
+
+# Docker specific
+docker-compose.override.yml
 
 # Local test files and data
 performance_results/

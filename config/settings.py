@@ -29,7 +29,7 @@ KEYWORD_WEIGHT = 0.3
 
 # Ollama configuration
 OLLAMA_MODEL = "llama3.2:3b"
-OLLAMA_BASE_URL = "http://localhost:11434"
+OLLAMA_BASE_URL = "http://ollama:11434"
 
 # Streamlit configuration
 PAGE_TITLE = "DocuMind - AI Knowledge Assistant"
